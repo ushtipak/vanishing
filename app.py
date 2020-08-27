@@ -1,8 +1,7 @@
-import logging
 import inspect
+import logging
 import os
 import sys
-import json
 
 import requests
 
@@ -17,10 +16,15 @@ def get_categories():
         logging.debug("[arg] %s = %s", i, values[i])
 
     r = requests.get(API_URL + '/categories.json', headers=headers)
+    logging.debug("[{}]: {}".format(r.status_code, r.json()))
+
     try:
-        _categories = r.json()['category_list']['categories']
-        logging.debug("[{}]: {}".format(r.status_code, r.json()))
+        category_list = r.json()['category_list']['categories']
+        _categories = {}
+        for _category in category_list:
+            _categories[_category['id']] = _category['name']
         return _categories
+
     except KeyError:
         logging.warning("response doesn't contain target keys")
         return None
@@ -45,7 +49,5 @@ if __name__ == "__main__":
     }
 
     categories = get_categories()
-    if categories:
-        for category in categories:
-            print(category)
+    logging.info("categories: %s" % categories)
 
