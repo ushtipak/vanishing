@@ -17,16 +17,20 @@ def get_categories():
         logging.debug("[arg] %s = %s", i, values[i])
 
     r = requests.get(API_URL + '/categories.json', headers=headers)
-
-    logging.debug("[{}]: {}".format(r.status_code, r.json()))
-    return r.text
+    try:
+        _categories = r.json()['category_list']['categories']
+        logging.debug("[{}]: {}".format(r.status_code, r.json()))
+        return _categories
+    except KeyError:
+        logging.warning("response doesn't contain target keys")
+        return None
 
 
 if __name__ == "__main__":
     logging.basicConfig(
         format='%(asctime)s - %(levelname)s - %(message)s',
         stream=sys.stdout,
-        level=logging.DEBUG)
+        level=logging.INFO)
 
     API_URL = os.environ.get('API_URL')
     API_KEY = os.environ.get('API_KEY')
@@ -41,5 +45,7 @@ if __name__ == "__main__":
     }
 
     categories = get_categories()
-    print(json.loads(categories)['category_list']['categories'][0]['name'])
+    if categories:
+        for category in categories:
+            print(category)
 
