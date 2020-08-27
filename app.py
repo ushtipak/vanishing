@@ -1,9 +1,26 @@
 import logging
+import inspect
 import os
 import sys
-from pprint import pprint
+import json
 
 import requests
+
+
+def get_categories():
+    """Retrieve existing categories."""
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
+    fn = inspect.getframeinfo(frame)[2]
+    logging.debug("[fn] %s()", fn)
+    for i in args:
+        logging.debug("[arg] %s = %s", i, values[i])
+
+    r = requests.get(API_URL + '/categories.json', headers=headers)
+
+    logging.debug("[{}]: {}".format(r.status_code, r.json()))
+    return r.text
+
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -23,6 +40,6 @@ if __name__ == "__main__":
         "Api-Username": API_USER
     }
 
-    r = requests.get(API_URL + '/categories.json', headers=headers)
-    print(r.status_code)
-    pprint(r.json())
+    categories = get_categories()
+    print(json.loads(categories)['category_list']['categories'][0]['name'])
+
