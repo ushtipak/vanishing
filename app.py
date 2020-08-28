@@ -52,11 +52,18 @@ def get_topic_from_category(_id):
         return None
 
 
+@show_args
+def delete_topic(_id):
+    """Delete a topic with a target ID."""
+    r = requests.delete(API_URL + "/t/{}.json".format(_id), headers=headers)
+    logging.debug("[{}] {}".format(r.status_code, r.text))
+
+
 if __name__ == "__main__":
     logging.basicConfig(
         format='%(asctime)s - %(levelname)s - %(message)s',
         stream=sys.stdout,
-        level=logging.INFO)
+        level=logging.DEBUG)
 
     API_URL = os.environ.get('API_URL')
     API_KEY = os.environ.get('API_KEY')
@@ -71,7 +78,10 @@ if __name__ == "__main__":
     }
 
     categories = get_categories()
+    # categories = {1: 'Uncategorized', 3: 'Staff', 4: 'Lounge', 2: 'Site Feedback'}
     logging.info("categories: %s" % categories)
 
-    topics = get_topic_from_category(2)
+    topics = get_topic_from_category(3)
+    # topics = {2: 'About the Staff category', 9: 'READ ME FIRST: Admin Quick Start Guide', 6: 'Privacy Policy',
+    #           5: 'FAQ/Guidelines', 4: 'Terms of Service'}
     logging.info("topics: %s" % topics)
