@@ -3,6 +3,7 @@ import os
 import sys
 
 import requests
+import yaml
 
 
 def show_args(function):
@@ -14,6 +15,16 @@ def show_args(function):
         return function(*args)
 
     return proceed
+
+
+def load_project(map_file):
+    """Read and parse YAML project map"""
+    with open(map_file, 'r') as project_file:
+        try:
+            return yaml.safe_load(project_file)
+        except yaml.YAMLError as ex:
+            logging.critical(ex)
+            sys.exit(1)
 
 
 @show_args
@@ -59,6 +70,30 @@ def delete_topic(_id):
     logging.debug("[{}] {}".format(r.status_code, r.text))
 
 
+@show_args
+def create_category(name, color, text_color="000000"):
+    """Create category with given parameters."""
+    data = {"name": name, "color": color, "text_color": text_color}
+    r = requests.post(API_URL + "/categories.json", headers=headers, data=data)
+    logging.debug("[{}]: {}".format(r.status_code, r.json()))
+
+    try:
+        _category_id = r.json()['category']['id']
+        return _category_id
+
+    except KeyError:
+        logging.warning("response doesn't contain target keys")
+        return None
+
+
+@show_args
+def create_topic(title, raw, _category_id):
+    """Create topic within given category with given parameters."""
+    data = {"title": title, "raw": raw, "category": _category_id}
+    r = requests.post(API_URL + "/posts.json", headers=headers, data=data)
+    logging.debug("[{}]: {}".format(r.status_code, r.json()))
+
+
 if __name__ == "__main__":
     logging.basicConfig(
         format='%(asctime)s - %(levelname)s - %(message)s',
@@ -85,3 +120,11 @@ if __name__ == "__main__":
     # topics = {2: 'About the Staff category', 9: 'READ ME FIRST: Admin Quick Start Guide', 6: 'Privacy Policy',
     #           5: 'FAQ/Guidelines', 4: 'Terms of Service'}
     logging.info("topics: %s" % topics)
+
+    COLORS = ["F7941D", "BF1E2E", "3AB54A", "25AAE2"]
+    project = load_project("project.yml")
+    for category in project:
+        category_id = create_category(category, COLORS.pop())
+        logging.info("created category: {}; id: {}".format(category, category_id))
+        for topic in project[category]:
+            create_topic(topic, topic, category_id)
