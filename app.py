@@ -94,6 +94,18 @@ def create_topic(title, raw, _category_id):
     logging.debug("[{}]: {}".format(r.status_code, r.json()))
 
 
+@show_args
+def bootstrap_project():
+    """Create categories and topics on managed Discourse server from project map"""
+    colors = ["F7941D", "BF1E2E", "3AB54A", "25AAE2"]
+    project = load_project("project.yml")
+    for category in project:
+        category_id = create_category(category, colors.pop())
+        logging.info("created category: {}; id: {}".format(category, category_id))
+        for topic in project[category]:
+            create_topic(topic, topic, category_id)
+
+
 if __name__ == "__main__":
     logging.basicConfig(
         format='%(asctime)s - %(levelname)s - %(message)s',
@@ -121,10 +133,3 @@ if __name__ == "__main__":
     #           5: 'FAQ/Guidelines', 4: 'Terms of Service'}
     logging.info("topics: %s" % topics)
 
-    COLORS = ["F7941D", "BF1E2E", "3AB54A", "25AAE2"]
-    project = load_project("project.yml")
-    for category in project:
-        category_id = create_category(category, COLORS.pop())
-        logging.info("created category: {}; id: {}".format(category, category_id))
-        for topic in project[category]:
-            create_topic(topic, topic, category_id)
