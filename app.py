@@ -35,9 +35,10 @@ def get_categories():
 
     try:
         category_list = r.json()['category_list']['categories']
-        _categories = {}
+        _categories = []
         for _category in category_list:
-            _categories[_category['id']] = _category['name']
+            _categories.append({'id': _category['id'], 'name': _category['name'], 'slug': _category['slug'],
+                                'color': _category['color']})
         return _categories
 
     except KeyError:
@@ -53,9 +54,9 @@ def get_topic_from_category(_id):
 
     try:
         topic_list = r.json()['topic_list']['topics']
-        _topics = {}
-        for _category in topic_list:
-            _topics[_category['id']] = _category['title']
+        _topics = []
+        for _topic in topic_list:
+            _topics.append({'id': _topic['id'], 'title': _topic['title'], 'slug': _topic['slug']})
         return _topics
 
     except KeyError:
@@ -99,18 +100,18 @@ def bootstrap_project():
     """Create categories and topics on managed Discourse server from project map"""
     colors = ["F7941D", "BF1E2E", "3AB54A", "25AAE2"]
     project = load_project("project.yml")
-    for category in project:
-        category_id = create_category(category, colors.pop())
-        logging.info("created category: {}; id: {}".format(category, category_id))
-        for topic in project[category]:
-            create_topic(topic, topic, category_id)
+    for _category in project:
+        _category_id = create_category(_category, colors.pop())
+        logging.info("created category: {}; id: {}".format(_category, _category_id))
+        for topic in project[_category]:
+            create_topic(topic, topic, _category_id)
 
 
 if __name__ == "__main__":
     logging.basicConfig(
         format='%(asctime)s - %(levelname)s - %(message)s',
         stream=sys.stdout,
-        level=logging.DEBUG)
+        level=logging.INFO)
 
     API_URL = os.environ.get('API_URL')
     API_KEY = os.environ.get('API_KEY')
@@ -125,11 +126,20 @@ if __name__ == "__main__":
     }
 
     categories = get_categories()
-    # categories = {1: 'Uncategorized', 3: 'Staff', 4: 'Lounge', 2: 'Site Feedback'}
     logging.info("categories: %s" % categories)
 
-    topics = get_topic_from_category(3)
-    # topics = {2: 'About the Staff category', 9: 'READ ME FIRST: Admin Quick Start Guide', 6: 'Privacy Policy',
-    #           5: 'FAQ/Guidelines', 4: 'Terms of Service'}
-    logging.info("topics: %s" % topics)
-
+    for category in categories:
+        name = category['name']
+        color = category['color']
+        category_url = "{}/c/{}".format(API_URL, category['slug'])
+        if name not in ['Staff', 'Uncategorized']:
+            print("<h1>{} ({}) [{}]</h1>".format(name, category_url, color))
+            print("<ul>")
+            for topic in get_topic_from_category(category['id']):
+                title = topic['title']
+                topic_url = "{}/t/{}".format(API_URL, topic['slug'])
+                if not title.startswith('About '):
+                    print("  <li>{} ({})</li>".format(title, topic_url))
+            print("</ul>")
+        # logging.info("{}/{}:".format(category['name'], category['id']))
+        # logging.info("  {}".format(get_topic_from_category(category['id'])))
