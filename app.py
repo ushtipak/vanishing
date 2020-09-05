@@ -72,9 +72,9 @@ def delete_topic(_id):
 
 
 @show_args
-def create_category(name, color, text_color="000000"):
+def create_category(_name, _color, text_color="000000"):
     """Create category with given parameters."""
-    data = {"name": name, "color": color, "text_color": text_color}
+    data = {"name": _name, "color": _color, "text_color": text_color}
     r = requests.post(API_URL + "/categories.json", headers=headers, data=data)
     logging.debug("[{}]: {}".format(r.status_code, r.json()))
 
@@ -103,8 +103,8 @@ def bootstrap_project():
     for _category in project:
         _category_id = create_category(_category, colors.pop())
         logging.info("created category: {}; id: {}".format(_category, _category_id))
-        for topic in project[_category]:
-            create_topic(topic, topic, _category_id)
+        for _topic in project[_category]:
+            create_topic(_topic, _topic, _category_id)
 
 
 if __name__ == "__main__":
