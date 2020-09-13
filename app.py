@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 
+from jinja2 import Environment, FileSystemLoader
 import requests
 import yaml
 
@@ -125,6 +126,7 @@ if __name__ == "__main__":
         "Api-Username": API_USER
     }
 
+    bundle = {}
     categories = get_categories()
     logging.info("categories: %s" % categories)
 
@@ -133,13 +135,16 @@ if __name__ == "__main__":
         color = category['color']
         category_url = "{}/c/{}".format(API_URL, category['slug'])
         if name not in ['Staff', 'Uncategorized']:
-            print("<h1>{} ({}) [{}]</h1>".format(name, category_url, color))
-            print("<ul>")
+            bundle[name] = {"color": color, "category_url": category_url, "topics": []}
             for topic in get_topic_from_category(category['id']):
                 title = topic['title']
                 topic_url = "{}/t/{}".format(API_URL, topic['slug'])
                 if not title.startswith('About '):
-                    print("  <li>{} ({})</li>".format(title, topic_url))
-            print("</ul>")
-        # logging.info("{}/{}:".format(category['name'], category['id']))
-        # logging.info("  {}".format(get_topic_from_category(category['id'])))
+                    bundle[name]["topics"].append({"title": title, "topic_url": topic_url})
+
+    file_loader = FileSystemLoader('templates')
+    env = Environment(loader=file_loader)
+    template = env.get_template('map.html.j2')
+
+    output = template.render(bundle=bundle)
+    print(output)
