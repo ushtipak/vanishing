@@ -10,10 +10,6 @@ h1 {
     justify-content: space-evenly;
 }
 
-.category {
-    justify-content: space-evenly;
-}
-
 .meta {
     display: flex;
     padding: 0.5rem 0;
@@ -59,9 +55,9 @@ h1 {
 <div class="mind-map">
 
     {% for b in bundle -%}
-    <div style="margin-top: 1rem;" class="category">
+    <div style="margin-top: 1rem;">
         <div class="topic" style="background: #{{ bundle[b]['color']}};">
-            <a style="font-size: 1.5em; padding: 0 4rem;" href="{{ bundle[b]['category_url'] }}">{{ b }}</a>
+            <a style="font-size: 1.5em; padding: 0 3rem;" href="{{ bundle[b]['category_url'] }}">{{ b.upper() }}</a>
         </div>
         <ul class="topic-list">
             {% for topic in bundle[b]["topics"] -%}
