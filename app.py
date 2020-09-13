@@ -2,9 +2,9 @@ import logging
 import os
 import sys
 
-from jinja2 import Environment, FileSystemLoader
 import requests
 import yaml
+from jinja2 import Environment, FileSystemLoader
 
 
 def show_args(function):
@@ -57,7 +57,8 @@ def get_topic_from_category(_id):
         topic_list = r.json()['topic_list']['topics']
         _topics = []
         for _topic in topic_list:
-            _topics.append({'id': _topic['id'], 'title': _topic['title'], 'slug': _topic['slug']})
+            _topics.append(
+                {'id': _topic['id'], 'title': _topic['title'], 'slug': _topic['slug'], 'closed': _topic['closed']})
         return _topics
 
     except KeyError:
@@ -138,13 +139,17 @@ if __name__ == "__main__":
             bundle[name] = {"color": color, "category_url": category_url, "topics": []}
             for topic in get_topic_from_category(category['id']):
                 title = topic['title']
+                closed = topic['closed']
                 topic_url = "{}/t/{}".format(API_URL, topic['slug'])
                 if not title.startswith('About '):
-                    bundle[name]["topics"].append({"title": title, "topic_url": topic_url})
+                    bundle[name]["topics"].append({"title": title, "topic_url": topic_url, "closed": closed })
 
     file_loader = FileSystemLoader('templates')
     env = Environment(loader=file_loader)
     template = env.get_template('map.html.j2')
+
+    for b in bundle:
+        print("{}: {}".format(b, bundle[b]))
 
     output = template.render(bundle=bundle)
     print(output)
