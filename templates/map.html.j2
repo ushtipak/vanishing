@@ -1,0 +1,75 @@
+<script type="text/x-handlebars" data-template-name="/connectors/extra-nav-item/plugin-outlet-component">
+<style>
+h1 {
+    text-align: center;
+}
+
+.mind-map {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.category {
+    justify-content: space-evenly;
+}
+
+.meta {
+    display: flex;
+    padding: 0.5rem 0;
+    font-weight: bold;
+    font-size: 1.5em;
+    text-align: center;
+    border: 1px solid black;
+    margin-top: 0.5rem;
+}
+
+.meta a:link, a:visited {
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+}
+
+.topic-list {
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.topic {
+    padding: 0.5rem 2rem;
+    margin-top: 0.5rem;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid black;
+}
+
+.topic a:link, a:visited {
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+}
+</style>
+
+<div class="mind-map">
+
+    {% for b in bundle -%}
+    <div style="margin-top: 1rem;" class="category">
+        <div class="topic" style="background: #{{ bundle[b]['color']}};">
+            <a style="font-size: 1.5em; padding: 0 4rem;" href="{{ bundle[b]['category_url'] }}">{{ b }}</a>
+        </div>
+        <ul class="topic-list">
+            {% for topic in bundle[b]["topics"] -%}
+            <li class="topic" style="background: #{{ bundle[b]['color']}};"><a href="{{ topic['topic_url'] }}">{{ topic['title'] }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+
+</div>
+</script>
