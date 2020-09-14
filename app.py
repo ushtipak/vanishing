@@ -106,7 +106,8 @@ def bootstrap_project():
         _category_id = create_category(_category, colors.pop())
         logging.info("created category: {}; id: {}".format(_category, _category_id))
         for _topic in project[_category]:
-            create_topic(_topic, _topic, _category_id)
+            for description in project[_category][_topic]:
+                create_topic(_topic, description, _category_id)
 
 
 @show_args
@@ -154,6 +155,8 @@ if __name__ == "__main__":
         "Api-Key": API_KEY,
         "Api-Username": API_USER
     }
+
+    bootstrap_project()
 
     categories = get_categories()
     logging.info("categories: %s" % categories)
