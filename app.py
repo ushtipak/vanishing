@@ -109,29 +109,11 @@ def bootstrap_project():
             create_topic(_topic, _topic, _category_id)
 
 
-if __name__ == "__main__":
-    logging.basicConfig(
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        stream=sys.stdout,
-        level=logging.INFO)
-
-    API_URL = os.environ.get('API_URL')
-    API_KEY = os.environ.get('API_KEY')
-    API_USER = os.environ.get('API_USER')
-    if not API_URL or not API_KEY or not API_USER:
-        logging.warning("please export API_{URL,KEY,USER} [!]")
-        exit(1)
-
-    headers = {
-        "Api-Key": API_KEY,
-        "Api-Username": API_USER
-    }
-
+@show_args
+def render_html(_categories):
+    """Render contents with given categories and topics bundle"""
     bundle = {}
-    categories = get_categories()
-    logging.info("categories: %s" % categories)
-
-    for category in categories:
+    for category in _categories:
         name = category['name']
         color = category['color']
         category_url = "{}/c/{}".format(API_URL, category['slug'])
@@ -153,3 +135,27 @@ if __name__ == "__main__":
 
     output = template.render(bundle=bundle)
     print(output)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        stream=sys.stdout,
+        level=logging.INFO)
+
+    API_URL = os.environ.get('API_URL')
+    API_KEY = os.environ.get('API_KEY')
+    API_USER = os.environ.get('API_USER')
+    if not API_URL or not API_KEY or not API_USER:
+        logging.warning("please export API_{URL,KEY,USER} [!]")
+        exit(1)
+
+    headers = {
+        "Api-Key": API_KEY,
+        "Api-Username": API_USER
+    }
+
+    categories = get_categories()
+    logging.info("categories: %s" % categories)
+
+    render_html(categories)
