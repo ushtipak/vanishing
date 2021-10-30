@@ -101,14 +101,15 @@ def create_topic(title, raw, _category_id):
 def delete_all_topics_and_categories(_categories):
     """Get all topics from given categories and delete them all."""
     for _category in _categories:
-        for topic in get_topic_from_category(_category['id']):
-            delete_topic(topic['id'])
+        if _category['name'] not in ("Site Feedback", "Lounge"):
+            for topic in get_topic_from_category(_category['id']):
+                delete_topic(topic['id'])
 
 
 @show_args
 def bootstrap_project():
     """Create categories and topics on managed Discourse server from project map"""
-    colors = ["F7941D", "BF1E2E", "3AB54A", "25AAE2"]
+    colors = ["F7941D", "BF1E2E", "3AB54A", "25AAE2", "797D81"]
     project = load_project("project.yml")
     for _category in project:
         _category_id = create_category(_category, colors.pop())
@@ -126,7 +127,7 @@ def render_html(_categories):
         name = category['name']
         color = category['color']
         category_url = "{}/c/{}".format(API_URL, category['slug'])
-        if name not in ['Staff', 'Uncategorized']:
+        if name not in ['Staff', 'Uncategorized', 'Lounge', 'Site Feedback']:
             bundle[name] = {"color": color, "category_url": category_url, "topics": []}
             for topic in get_topic_from_category(category['id']):
                 title = topic['title']
@@ -164,9 +165,11 @@ if __name__ == "__main__":
         "Api-Username": API_USER
     }
 
-    categories = get_categories()
-    logging.info("categories: %s" % categories)
-    delete_all_topics_and_categories(categories)
-
     bootstrap_project()
+
+    categories = get_categories()
+    # logging.info("categories: %s" % categories)
+    # delete_all_topics_and_categories(categories)
+
+    print()
     render_html(categories)
