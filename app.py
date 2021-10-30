@@ -98,6 +98,14 @@ def create_topic(title, raw, _category_id):
 
 
 @show_args
+def delete_all_topics_and_categories(_categories):
+    """Get all topics from given categories and delete them all."""
+    for _category in _categories:
+        for topic in get_topic_from_category(_category['id']):
+            delete_topic(topic['id'])
+
+
+@show_args
 def bootstrap_project():
     """Create categories and topics on managed Discourse server from project map"""
     colors = ["F7941D", "BF1E2E", "3AB54A", "25AAE2"]
@@ -156,9 +164,9 @@ if __name__ == "__main__":
         "Api-Username": API_USER
     }
 
-    bootstrap_project()
-
     categories = get_categories()
     logging.info("categories: %s" % categories)
+    delete_all_topics_and_categories(categories)
 
+    bootstrap_project()
     render_html(categories)
